@@ -25,17 +25,17 @@ Git Auto Sync consists of three main components:
 
 ```
 ┌─────────────┐         HTTP/WebSocket         ┌──────────────┐
-│             │ ────────────────────────────>   │              │
-│  GUI Client │                                 │    Daemon    │
-│  (Avalonia) │ <────────────────────────────   │  (ASP.NET)   │
+│             │ ────────────────────────────>  │              │
+│  GUI Client │                                │    Daemon    │
+│  (Avalonia) │ <────────────────────────────  │  (ASP.NET)   │
 └─────────────┘    Real-time status updates    └──────────────┘
                                                        │
                                                        │ Monitors
                                                        ▼
-                                                ┌──────────────┐
-                                                │ Git Repos    │
-                                                │ on Disk      │
-                                                └──────────────┘
+                                               ┌──────────────┐
+                                               │ Git Repos    │
+                                               │ on Disk      │
+                                               └──────────────┘
 ```
 
 ## Requirements
