@@ -1,0 +1,286 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:GitAutoSync.GUI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="650"
+        x:Class="GitAutoSync.GUI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Git Auto Sync"
+        Icon="avares://GitAutoSync.GUI/Assets/app-icon.png"
+        MinWidth="800"
+        MinHeight="500"
+        Width="1000"
+        Height="650">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="MinHeight" Value="30" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="CornerRadius" Value="9" />
+        </Style>
+        <Style Selector="Button:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorLight2}" />
+        </Style>
+        <Style Selector="Button:pressed">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorDark1}" />
+        </Style>
+        <Style Selector="Button:focus-visible">
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
+        </Style>
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="6,4" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="ListBoxItem:selected">
+            <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+        </Style>
+    </Window.Styles>
+
+    <Border Margin="14"
+            CornerRadius="20"
+            Background="{DynamicResource SystemControlPageBackgroundChromeLowBrush}"
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="1"
+            Padding="1"
+            BoxShadow="0 14 32 0 #330B121A">
+        <Grid RowDefinitions="*,Auto">
+
+            <Grid Grid.Row="0" ColumnDefinitions="280,Auto,*">
+
+                <Border Grid.Column="0"
+                        CornerRadius="20,0,0,0"
+                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                        Padding="0">
+                    <Grid RowDefinitions="Auto,*,Auto">
+
+                        <Border Grid.Row="0" Padding="16,16,16,8">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                           Text="Repositories"
+                                           FontSize="16" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                <TextBlock Grid.Row="1" Grid.Column="0"
+                                           Text="{Binding TotalRepositories, StringFormat='{}{0} repositories'}"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                           Margin="0,2,0,0" />
+                                <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                        Content="+"
+                                        Command="{Binding AddRepoCommand}"
+                                        ToolTip.Tip="Add Repository"
+                                        FontSize="16" FontWeight="Bold"
+                                        Padding="8,4"
+                                        VerticalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding Repositories}"
+                                 SelectedItem="{Binding SelectedRepository}"
+                                 Background="Transparent"
+                                 Margin="8,0"
+                                 BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" Margin="4,6">
+                                        <Ellipse Grid.Column="0"
+                                                 Width="8" Height="8"
+                                                 Fill="{Binding StatusColor}"
+                                                 VerticalAlignment="Top"
+                                                 Margin="0,5,10,0" />
+                                        <StackPanel Grid.Column="1" Spacing="1">
+                                            <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       FontSize="13"
+                                                       Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                            <TextBlock Text="{Binding Path}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                       TextTrimming="CharacterEllipsis" />
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <TextBlock Text="{Binding Status}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                                <TextBlock Text="{Binding LastActivity}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                                           IsVisible="{Binding LastActivity, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <Border Grid.Row="2" Padding="12" BorderThickness="0,1,0,0"
+                                CornerRadius="0,0,0,20"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                            <StackPanel Spacing="6">
+                                <Button Content="Start All"
+                                        Command="{Binding StartAllCommand}"
+                                        IsEnabled="{Binding CanStartAll}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center" />
+                                <Button Content="Stop All"
+                                        Command="{Binding StopAllCommand}"
+                                        IsEnabled="{Binding CanStopAll}"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Center" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="1" Width="1"
+                        Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+
+                <Grid Grid.Column="2" RowDefinitions="Auto,*">
+
+                    <Border Grid.Row="0" Padding="24,20"
+                            CornerRadius="0,20,0,0"
+                            BorderThickness="0,0,0,1"
+                            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                        <Grid IsVisible="{Binding SelectedRepository, Converter={x:Static ObjectConverters.IsNotNull}}">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="{Binding SelectedRepository.Name}"
+                                           FontSize="20" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                <TextBlock Text="{Binding SelectedRepository.Path}"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                    <Ellipse Width="8" Height="8"
+                                             Fill="{Binding SelectedRepository.StatusColor}"
+                                             VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding SelectedRepository.Status}"
+                                               FontSize="13"
+                                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Text="&#xB7;" FontSize="13"
+                                               Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock
+                                        Text="{Binding SelectedRepository.LastActivity, StringFormat='Last activity: {0}'}"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                        VerticalAlignment="Center" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0">
+                                    <Button Content="Start"
+                                            Command="{Binding StartRepoCommand}"
+                                            CommandParameter="{Binding SelectedRepository}"
+                                            IsEnabled="{Binding SelectedRepository.CanStart}" />
+                                    <Button Content="Stop"
+                                            Command="{Binding StopRepoCommand}"
+                                            CommandParameter="{Binding SelectedRepository}"
+                                            IsEnabled="{Binding SelectedRepository.IsRunning}" />
+                                    <Button Content="Remove"
+                                            Command="{Binding RemoveRepoCommand}"
+                                            CommandParameter="{Binding SelectedRepository}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="0" Padding="24,20"
+                            CornerRadius="0,20,0,0"
+                            IsVisible="{Binding SelectedRepository, Converter={x:Static ObjectConverters.IsNull}}">
+                        <TextBlock Text="Select a repository"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center" />
+                    </Border>
+
+                    <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="0">
+                        <Border Grid.Row="0" Padding="24,12"
+                                BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                <TextBlock Grid.Column="0" Text="Activity Log"
+                                           FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                           VerticalAlignment="Center" />
+                                <Button Grid.Column="1" Content="Copy"
+                                        Command="{Binding CopyLogCommand}"
+                                        Padding="12,4" Margin="0,0,6,0" />
+                                <Button Grid.Column="2" Content="Clear"
+                                        Command="{Binding ClearLogCommand}"
+                                        Padding="12,4" />
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding LogEntries}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Padding="8,4"
+                                 SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="60,50,110,*" Margin="8,2">
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding Timestamp, StringFormat='{}{0:HH:mm:ss}'}"
+                                                   FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumLowBrush}" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding Level}"
+                                                   FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                                                   FontSize="12"
+                                                   Foreground="{Binding LevelColor}"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Repository}"
+                                                   FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding Message}"
+                                                   FontFamily="Cascadia Mono, Consolas, Menlo, monospace"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="12,0,0,0" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Grid>
+            </Grid>
+
+            <Border Grid.Row="1"
+                    CornerRadius="0,0,20,20"
+                    Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="16,8">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding StatusMessage}"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                               VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="16">
+                        <TextBlock Text="{Binding ActiveRepositories, StringFormat='Active: {0}'}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding TotalRepositories, StringFormat='Total: {0}'}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

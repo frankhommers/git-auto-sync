@@ -1,0 +1,35 @@
+[[repo]]
+hosts = ["Franks-MBP16", "Franks-MBP15"]
+name = "Royal TS Documents"
+path = "/Users/frankhommers/Repos/royalts-docs"
+
+[[repo]]
+hosts = ["Franks-MBP16", "Franks-MBP15"]
+name = "Git Auto Sync Config"
+path = "/Users/frankhommers/Repos/git-auto-sync-config"
+
+[[repo]]
+hosts = ["Franks-MBP16", "Franks-MBP15"]
+name = "VPN Clients"
+path = "/Users/frankhommers/Repos/vpnclients"
+
+[[repo]]
+hosts = ["THERON"]
+name = "Royal TS Documents"
+path = "C:\\repos\\royalts-docs"
+
+[[repo]]
+hosts = ["THERON"]
+name = "gLabels Definitions"
+path = "C:\\Repos\\glabels"
+
+[[repo]]
+hosts = ["THERON"]
+name = "GitAutoSync Config"
+path = "C:\\Repos\\git-auto-sync-config"
+
+[[repo]]
+hosts = ["THERON"]
+name = "VPN Clients"
+path = "C:\\Repos\\vpnclients"
+

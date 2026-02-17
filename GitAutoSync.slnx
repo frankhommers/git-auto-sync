@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GitAutoSync.Console/GitAutoSync.Console.csproj"/>
+  <Project Path="GitAutoSync.Core/GitAutoSync.Core.csproj"/>
+  <Project Path="GitAutoSync.Daemon/GitAutoSync.Daemon.csproj"/>
+  <Project Path="GitAutoSync.GUI/GitAutoSync.GUI.csproj"/>
+</Solution>
