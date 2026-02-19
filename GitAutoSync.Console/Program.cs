@@ -6,6 +6,7 @@ using Cocona;
 using Cocona.Builder;
 using GitAutoSync.Core;
 using GitAutoSync.Core.Config;
+using Notifs;
 using Tomlet;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -83,6 +84,10 @@ internal class Program
     [FromService] IServiceProvider sp,
     [Option] string? configFile = null,
     [Option] bool addToLogin = false,
+    [Option(Description = "Notification mode: auto-desktop-first, auto-terminal-first, desktop-only, terminal-only, off")]
+    string notificationMode = "auto-terminal-first",
+    [Option(Description = "Terminal notification preference: auto, osc9-only, bel-only")]
+    string terminalNotificationPreference = "auto",
     [FromService] CancellationToken cancellationToken = default)
   {
     logger.LogInformation("Starting GitAutoSync Console");
@@ -115,6 +120,18 @@ internal class Program
     }
 
     Config config = TomletMain.To<Config>(await File.ReadAllTextAsync(tomlConfigFile));
+
+    NotificationOptions notificationOptions = new()
+    {
+      Mode = ParseNotificationMode(notificationMode),
+      TerminalPreference = ParseTerminalPreference(terminalNotificationPreference),
+    };
+
+    logger.LogInformation(
+      "Notifications configured: mode={NotificationMode}, terminal={TerminalPreference}",
+      notificationOptions.Mode,
+      notificationOptions.TerminalPreference);
+
     List<GitAutoSyncDirectoryWorker> watchers = new();
     List<RepoConfig> repos = config.Repos
       .Where(repo => MatchesHostname(repo.Hosts)).ToList();
@@ -138,7 +155,7 @@ internal class Program
       using (IDisposable? scope =
              subLogger.BeginScope(new Dictionary<string, object> {{"RepositoryName", repoConfig.Name}}))
       {
-        GitAutoSyncDirectoryWorker repoWatcher = new(subLogger, repoConfig.Name, repoConfig.Path);
+        GitAutoSyncDirectoryWorker repoWatcher = new(subLogger, repoConfig.Name, repoConfig.Path, notificationOptions);
         watchers.Add(repoWatcher);
       }
 
@@ -151,6 +168,36 @@ internal class Program
       logger.LogInformation("GitAutoSync Console running, press Ctrl-C to quit");
       await Task.Delay(60 * 60 * 1000, cancellationToken);
     }
+  }
+
+  private static NotificationMode ParseNotificationMode(string input)
+  {
+    string normalized = input.Trim().ToLowerInvariant().Replace("_", "-");
+    return normalized switch
+    {
+      "auto-desktop-first" => NotificationMode.AutoDesktopFirst,
+      "auto-terminal-first" => NotificationMode.AutoTerminalFirst,
+      "desktop-only" => NotificationMode.DesktopOnly,
+      "terminal-only" => NotificationMode.TerminalOnly,
+      "off" => NotificationMode.Off,
+      _ => throw new Cocona.CommandExitedException(
+        $"Invalid --notification-mode '{input}'. Expected: auto-desktop-first, auto-terminal-first, desktop-only, terminal-only, off.",
+        2),
+    };
+  }
+
+  private static TerminalNotificationPreference ParseTerminalPreference(string input)
+  {
+    string normalized = input.Trim().ToLowerInvariant().Replace("_", "-");
+    return normalized switch
+    {
+      "auto" => TerminalNotificationPreference.Auto,
+      "osc9-only" => TerminalNotificationPreference.Osc9Only,
+      "bel-only" => TerminalNotificationPreference.BelOnly,
+      _ => throw new Cocona.CommandExitedException(
+        $"Invalid --terminal-notification-preference '{input}'. Expected: auto, osc9-only, bel-only.",
+        2),
+    };
   }
 
   private static void AddToLogin(ILogger<Program> logger, string configFile)

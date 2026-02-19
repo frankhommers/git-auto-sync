@@ -73,6 +73,22 @@ dotnet run --project GitAutoSync.Daemon
 
 The daemon will start on `http://127.0.0.1:52847` by default.
 
+### Running the Console app (with terminal notifications)
+
+```bash
+dotnet run --project GitAutoSync.Console -- \
+  --notification-mode auto-terminal-first \
+  --terminal-notification-preference osc9-only
+```
+
+Valid notification modes (console default is `auto-terminal-first`):
+
+- `auto-desktop-first`
+- `auto-terminal-first`
+- `desktop-only`
+- `terminal-only`
+- `off`
+
 ### Running the GUI
 
 ```bash

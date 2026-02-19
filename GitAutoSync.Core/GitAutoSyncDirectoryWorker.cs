@@ -19,6 +19,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
   private readonly SemaphoreSlim _queueSemaphore = new(1, 1);
   private readonly SemaphoreSlim _gitSemaphore = new(1, 1);
   private readonly FileSystemWatcher _watcher;
+  private readonly NotificationOptions? _notificationOptions;
   private bool _disposed = false;
 
   public enum EventType
@@ -30,10 +31,15 @@ public class GitAutoSyncDirectoryWorker : IDisposable
     ForcedCheck,
   }
 
-  public GitAutoSyncDirectoryWorker(ILogger<GitAutoSyncDirectoryWorker> logger, string repoName, string repoPath)
+  public GitAutoSyncDirectoryWorker(
+    ILogger<GitAutoSyncDirectoryWorker> logger,
+    string repoName,
+    string repoPath,
+    NotificationOptions? notificationOptions = null)
   {
     _logger = logger;
     _repoName = repoName;
+    _notificationOptions = notificationOptions;
     logger.LogInformation("Initializing RepoFileSystemWatcher");
     _repoDir = new DirectoryInfo(FileUtils.GetExactPathName(repoPath));
     _repoGitDir = new DirectoryInfo(FileUtils.GetExactPathName(Path.Combine(_repoDir.FullName, ".git")));
@@ -153,7 +159,8 @@ public class GitAutoSyncDirectoryWorker : IDisposable
     if (statusResult.ExitCode != 0 && notifyOnError)
     {
       _logger.LogError($"Git error occurred, error executing git {arguments}");
-      Notification.NotifyAsync("GitAutoSync", _repoName, $"Error executing git {arguments}").ConfigureAwait(false)
+      Notification.NotifyAsync("GitAutoSync", _repoName, $"Error executing git {arguments}", _notificationOptions)
+        .ConfigureAwait(false)
         .GetAwaiter().GetResult();
     }
 
@@ -235,14 +242,19 @@ public class GitAutoSyncDirectoryWorker : IDisposable
           Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
-              $"Pull/rebase failed (stdout: {pullResult.stdOut}, stderr: {pullResult.stdErr})").ConfigureAwait(false)
+              $"Pull/rebase failed (stdout: {pullResult.stdOut}, stderr: {pullResult.stdErr})",
+              _notificationOptions).ConfigureAwait(false)
             .GetAwaiter().GetResult();
           return;
         }
         else if (!string.IsNullOrWhiteSpace(pullResult.stdOut))
         {
           Notification
-            .NotifyAsync("GitAutoSync", "Synchronized (rebase) files from remote to local", pullResult.stdOut)
+            .NotifyAsync(
+              "GitAutoSync",
+              "Synchronized (rebase) files from remote to local",
+              pullResult.stdOut,
+              _notificationOptions)
             .ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
@@ -260,7 +272,8 @@ public class GitAutoSyncDirectoryWorker : IDisposable
           Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
-              $"Push failed (stdout: {pushResult.stdOut}, stderr: {pushResult.stdErr})").ConfigureAwait(false)
+              $"Push failed (stdout: {pushResult.stdOut}, stderr: {pushResult.stdErr})",
+              _notificationOptions).ConfigureAwait(false)
             .GetAwaiter().GetResult();
         }
         else
@@ -268,7 +281,8 @@ public class GitAutoSyncDirectoryWorker : IDisposable
           Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
-              $"Synchronized (push) files from local to remote {commitMessage}").ConfigureAwait(false).GetAwaiter()
+              $"Synchronized (push) files from local to remote {commitMessage}",
+              _notificationOptions).ConfigureAwait(false).GetAwaiter()
             .GetResult();
         }
       }
