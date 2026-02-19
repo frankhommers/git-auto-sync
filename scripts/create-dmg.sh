@@ -15,12 +15,23 @@ if [[ ! -d "$APP_PATH" ]]; then
   exit 1
 fi
 
+APP_NAME="$(basename "$APP_PATH")"
+
 mkdir -p "$(dirname "$DMG_PATH")"
 rm -f "$DMG_PATH"
 
+STAGING_DIR="$(mktemp -d)"
+cleanup() {
+  rm -rf "$STAGING_DIR"
+}
+trap cleanup EXIT
+
+cp -R "$APP_PATH" "$STAGING_DIR/$APP_NAME"
+ln -s /Applications "$STAGING_DIR/Applications"
+
 hdiutil create \
   -volname "$VOLUME_NAME" \
-  -srcfolder "$APP_PATH" \
+  -srcfolder "$STAGING_DIR" \
   -ov \
   -format UDZO \
   "$DMG_PATH"
