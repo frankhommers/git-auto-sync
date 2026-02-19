@@ -3,6 +3,7 @@ using System.Text;
 using System.Timers;
 using CliWrap;
 using Microsoft.Extensions.Logging;
+using Notifs;
 
 namespace GitAutoSync.Core;
 
@@ -152,7 +153,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
     if (statusResult.ExitCode != 0 && notifyOnError)
     {
       _logger.LogError($"Git error occurred, error executing git {arguments}");
-      Notifs.Notifs.NotifyAsync("GitAutoSync", _repoName, $"Error executing git {arguments}").ConfigureAwait(false)
+      Notification.NotifyAsync("GitAutoSync", _repoName, $"Error executing git {arguments}").ConfigureAwait(false)
         .GetAwaiter().GetResult();
     }
 
@@ -231,7 +232,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
         if (pullResult.commandResult.ExitCode != 0)
         {
           _logger.LogWarning("Pull with rebase failed");
-          Notifs.Notifs.NotifyAsync(
+          Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
               $"Pull/rebase failed (stdout: {pullResult.stdOut}, stderr: {pullResult.stdErr})").ConfigureAwait(false)
@@ -240,7 +241,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
         }
         else if (!string.IsNullOrWhiteSpace(pullResult.stdOut))
         {
-          Notifs.Notifs
+          Notification
             .NotifyAsync("GitAutoSync", "Synchronized (rebase) files from remote to local", pullResult.stdOut)
             .ConfigureAwait(false).GetAwaiter().GetResult();
         }
@@ -256,7 +257,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
         if (pushResult.commandResult.ExitCode != 0)
         {
           _logger.LogWarning("Push failed");
-          Notifs.Notifs.NotifyAsync(
+          Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
               $"Push failed (stdout: {pushResult.stdOut}, stderr: {pushResult.stdErr})").ConfigureAwait(false)
@@ -264,7 +265,7 @@ public class GitAutoSyncDirectoryWorker : IDisposable
         }
         else
         {
-          Notifs.Notifs.NotifyAsync(
+          Notification.NotifyAsync(
               "GitAutoSync",
               _repoName,
               $"Synchronized (push) files from local to remote {commitMessage}").ConfigureAwait(false).GetAwaiter()

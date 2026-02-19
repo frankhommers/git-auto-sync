@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="CliWrap" Version="3.10.0"/>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.3"/>
-    <PackageReference Include="Notifs" Version="1.0.1"/>
+    <PackageReference Include="Notifs" Version="1.1.0"/>
     <PackageReference Include="Samboy063.Tomlet" Version="6.2.0"/>
     <PackageReference Include="Serilog" Version="4.3.1"/>
     <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0"/>

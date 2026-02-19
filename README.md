@@ -321,6 +321,7 @@ git-auto-sync/
 - **Serilog** - Structured logging
 - **Tomlet** - TOML configuration parsing
 - **CliWrap** - Git command execution
+- **Notifs** - Cross-platform desktop notifications (NuGet.org)
 
 ### Building for Production
 
