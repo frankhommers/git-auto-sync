@@ -519,6 +519,10 @@ For issues and questions:
 - Check existing documentation
 - Review logs for error messages
 
+If you find this project useful, consider supporting development:
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/frankhommers)
+
 ## Security
 
 For responsible vulnerability reporting, see `SECURITY.md`.
