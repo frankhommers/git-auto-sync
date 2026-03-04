@@ -208,6 +208,7 @@ public class MainWindowViewModel : ViewModelBase
   public ICommand ToggleStartupCommand { get; }
   public ICommand ShowAboutCommand { get; }
   public ICommand CopyLogCommand { get; }
+  public ICommand OpenSponsorLinkCommand { get; }
 
   public MainWindowViewModel(
     DaemonClient daemonClient,
@@ -267,6 +268,7 @@ public class MainWindowViewModel : ViewModelBase
     ToggleStartupCommand = new ThreadSafeCommand(ToggleStartup);
     ShowAboutCommand = new ThreadSafeCommand(ShowAbout);
     CopyLogCommand = new ThreadSafeCommand(CopyLog);
+    OpenSponsorLinkCommand = new ThreadSafeCommand(OpenSponsorLink);
 
     // Subscribe to collection changes to update computed properties
     Repositories.CollectionChanged += (_, _) =>
@@ -799,6 +801,27 @@ public class MainWindowViewModel : ViewModelBase
     LogEntries.Clear();
     LogText = "";
     AddLogEntry("INFO", "Application", "Log cleared");
+  }
+
+  private async Task OpenSponsorLink()
+  {
+    try
+    {
+      if (Avalonia.Application.Current?.ApplicationLifetime
+          is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+          && desktop.MainWindow is { } window)
+      {
+        var topLevel = TopLevel.GetTopLevel(window);
+        if (topLevel?.Launcher is { } launcher)
+        {
+          await launcher.LaunchUriAsync(new Uri("https://ko-fi.com/frankhommers"));
+        }
+      }
+    }
+    catch
+    {
+      // Browser launch failed
+    }
   }
 
   private async Task CheckStartupStatus()

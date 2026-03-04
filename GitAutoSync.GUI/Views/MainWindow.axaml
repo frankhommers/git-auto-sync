@@ -132,6 +132,19 @@
                                         IsEnabled="{Binding CanStopAll}"
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Center" />
+                                <Button Command="{Binding OpenSponsorLinkCommand}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        HorizontalAlignment="Center"
+                                        MinHeight="0"
+                                        Padding="4,1"
+                                        Cursor="Hand"
+                                        Margin="0,2,0,0">
+                                    <TextBlock Text="Support this project"
+                                               FontSize="9"
+                                               Opacity="0.4"
+                                               TextDecorations="Underline"/>
+                                </Button>
                             </StackPanel>
                         </Border>
                     </Grid>
