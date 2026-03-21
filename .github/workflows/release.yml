@@ -113,6 +113,7 @@ jobs:
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true
+          -p:PublishAot=false
           -o publish
 
       - name: Publish Daemon
@@ -121,6 +122,7 @@ jobs:
           -c Release
           -r ${{ matrix.rid }}
           --self-contained true
+          -p:PublishAot=false
           -o publish
 
       - name: Create zip
