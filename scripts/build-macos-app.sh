@@ -126,9 +126,9 @@ cat > "$APP_CONTENTS_DIR/Info.plist" <<EOF
   <key>CFBundleIdentifier</key>
   <string>$BUNDLE_ID</string>
   <key>CFBundleVersion</key>
-  <string>1.0.0</string>
+  <string>${APP_VERSION:-1.0.0}</string>
   <key>CFBundleShortVersionString</key>
-  <string>1.0.0</string>
+  <string>${APP_VERSION:-1.0.0}</string>
   <key>CFBundleExecutable</key>
   <string>GitAutoSync.GUI</string>
   <key>CFBundlePackageType</key>

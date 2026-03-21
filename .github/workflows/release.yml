@@ -114,6 +114,7 @@ jobs:
           -r ${{ matrix.rid }}
           --self-contained true
           -p:PublishAot=false
+          -p:Version=${{ steps.release_tag.outputs.version }}
           -o publish
 
       - name: Publish Daemon
@@ -123,6 +124,7 @@ jobs:
           -r ${{ matrix.rid }}
           --self-contained true
           -p:PublishAot=false
+          -p:Version=${{ steps.release_tag.outputs.version }}
           -o publish
 
       - name: Create zip
