@@ -38,6 +38,18 @@ Git Auto Sync consists of three main components:
                                                └──────────────┘
 ```
 
+## Installation (macOS)
+
+```bash
+brew tap frankhommers/tap
+brew install --cask frankhommers/tap/git-auto-sync
+```
+
+> **Note:** The app is not notarized by Apple. On first launch macOS may show a warning. The Homebrew cask automatically removes the quarantine flag. If you downloaded manually, run:
+> ```bash
+> xattr -d com.apple.quarantine "/Applications/Git Auto Sync.app"
+> ```
+
 ## Requirements
 
 - **.NET 10 SDK** or later
