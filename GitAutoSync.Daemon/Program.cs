@@ -10,6 +10,8 @@ try
 {
   Log.Information("Git Auto Sync Daemon starting...");
 
+  await GitAutoSync.Core.ShellEnvironmentService.ResolveAsync();
+
   WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
   builder.Host.UseSerilog();
