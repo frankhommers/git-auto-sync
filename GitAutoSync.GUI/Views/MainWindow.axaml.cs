@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using GitAutoSync.GUI.ViewModels;
@@ -186,12 +187,17 @@ public partial class MainWindow : Window
     // Create Help menu (About will be handled automatically by macOS)
     if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
     {
+      NativeMenuItem aboutItem = new("About Git Auto Sync")
+      {
+        Command = ReactiveCommand.CreateFromTask(async () =>
+        {
+          AboutWindow aboutWindow = new();
+          await aboutWindow.ShowDialog(this);
+        }),
+      };
       NativeMenuItem helpMenu = new("Help")
       {
-        Menu = new NativeMenu
-        {
-          CreateMenuItem("About GitAutoSync", null, vm => vm.ShowAboutCommand),
-        },
+        Menu = new NativeMenu { aboutItem },
       };
       menuItems.Add(helpMenu);
     }
@@ -371,5 +377,11 @@ public partial class MainWindow : Window
     }
 
     base.OnClosing(e);
+  }
+
+  private async void AboutButton_OnClick(object? sender, RoutedEventArgs e)
+  {
+    AboutWindow aboutWindow = new();
+    await aboutWindow.ShowDialog(this);
   }
 }

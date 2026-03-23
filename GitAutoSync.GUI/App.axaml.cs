@@ -2,8 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using System.Reflection;
 using GitAutoSync.GUI.Services;
 using GitAutoSync.GUI.ViewModels;
 using GitAutoSync.GUI.Views;
@@ -102,68 +100,7 @@ public partial class App : Application
     if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop &&
         desktop.MainWindow != null)
     {
-      string appVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
-
-      // Create a simple about window
-      Window aboutWindow = new()
-      {
-        Title = "About Git Auto Sync",
-        Width = 400,
-        Height = 250,
-        WindowStartupLocation = WindowStartupLocation.CenterOwner,
-        CanResize = false,
-        ShowInTaskbar = false,
-        Content = new StackPanel
-        {
-          Margin = new Thickness(20),
-          Children =
-          {
-            new TextBlock
-            {
-              Text = "Git Auto Sync",
-              FontSize = 20,
-              FontWeight = FontWeight.Bold,
-              HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-              Margin = new Thickness(0, 0, 0, 10),
-            },
-            new TextBlock
-            {
-              Text = "Automatically sync your git repositories",
-              FontSize = 14,
-              HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-              Margin = new Thickness(0, 0, 0, 20),
-            },
-            new TextBlock
-            {
-              Text = $"Version {appVersion}",
-              FontSize = 12,
-              HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-              Margin = new Thickness(0, 0, 0, 5),
-            },
-            new TextBlock
-            {
-              Text = "© 2025 Frank Hommers",
-              FontSize = 12,
-              HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-              Margin = new Thickness(0, 0, 0, 20),
-            },
-            new Button
-            {
-              Content = "OK",
-              HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-              Width = 80,
-            },
-          },
-        },
-      };
-
-      // Add click handler to close the window
-      if (aboutWindow.Content is StackPanel panel &&
-          panel.Children.LastOrDefault() is Button okButton)
-      {
-        okButton.Click += (_, _) => aboutWindow.Close();
-      }
-
+      AboutWindow aboutWindow = new();
       await aboutWindow.ShowDialog(desktop.MainWindow);
     }
   }

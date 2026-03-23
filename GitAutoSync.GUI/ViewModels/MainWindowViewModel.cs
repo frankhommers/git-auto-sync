@@ -999,7 +999,7 @@ public class MainWindowViewModel : ViewModelBase
     {
       string version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "Unknown";
       string aboutMessage =
-        $"GitAutoSync v{version} - A cross-platform Git repository synchronization tool. Built with Avalonia UI and .NET 9";
+        $"GitAutoSync v{version} - A cross-platform Git repository synchronization tool. Built with Avalonia UI and .NET {Environment.Version.Major}";
 
       AddLogEntry("INFO", "Application", "About dialog requested");
       AddLogEntry("INFO", "Application", aboutMessage);

@@ -485,3 +485,5 @@ dist-test/
 
 # Local/private NuGet feeds
 nuget.config
+
+.agent-session-logs/
