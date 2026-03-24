@@ -18,6 +18,9 @@ namespace GitAutoSync.GUI.Views;
 public partial class MainWindow : Window
 {
   private NativeMenuItem? _startupMenuItem;
+  private NativeMenuItem? _themeFollowSystem;
+  private NativeMenuItem? _themeDark;
+  private NativeMenuItem? _themeLight;
 
   public MainWindow()
   {
@@ -176,11 +179,34 @@ public partial class MainWindow : Window
       ToggleType = NativeMenuItemToggleType.CheckBox,
     };
 
+    // Theme submenu with radio-style toggles
+    _themeFollowSystem = new NativeMenuItem("Follow system")
+    {
+      ToggleType = NativeMenuItemToggleType.Radio,
+      IsChecked = true,
+      Command = ReactiveCommand.Create(() => SetTheme("Follow system")),
+    };
+    _themeDark = new NativeMenuItem("Dark")
+    {
+      ToggleType = NativeMenuItemToggleType.Radio,
+      Command = ReactiveCommand.Create(() => SetTheme("Dark")),
+    };
+    _themeLight = new NativeMenuItem("Light")
+    {
+      ToggleType = NativeMenuItemToggleType.Radio,
+      Command = ReactiveCommand.Create(() => SetTheme("Light")),
+    };
+
+    NativeMenuItem themeMenu = new("Theme")
+    {
+      Menu = new NativeMenu {_themeFollowSystem, _themeDark, _themeLight},
+    };
+
     // Use "Preferences" on macOS, "Options" on other platforms
     string prefsMenuName = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "Preferences" : "Options";
     NativeMenuItem prefsMenu = new(prefsMenuName)
     {
-      Menu = new NativeMenu {_startupMenuItem},
+      Menu = new NativeMenu {_startupMenuItem, new NativeMenuItemSeparator(), themeMenu},
     };
     menuItems.Add(prefsMenu);
 
@@ -292,6 +318,34 @@ public partial class MainWindow : Window
     return exitItem;
   }
 
+  private void SetTheme(string themeMode)
+  {
+    if (DataContext is MainWindowViewModel vm)
+    {
+      vm.SelectedThemeMode = themeMode;
+    }
+
+    UpdateThemeMenuState(themeMode);
+  }
+
+  private void UpdateThemeMenuState(string themeMode)
+  {
+    if (_themeFollowSystem != null)
+    {
+      _themeFollowSystem.IsChecked = themeMode == "Follow system";
+    }
+
+    if (_themeDark != null)
+    {
+      _themeDark.IsChecked = themeMode == "Dark";
+    }
+
+    if (_themeLight != null)
+    {
+      _themeLight.IsChecked = themeMode == "Light";
+    }
+  }
+
   private void SetupDataContextBinding()
   {
     // Update menu items when DataContext changes
@@ -310,14 +364,24 @@ public partial class MainWindow : Window
 
       // Set initial startup menu state
       UpdateStartupMenuState(vm.IsStartupEnabled);
+
+      // Set initial theme menu state
+      UpdateThemeMenuState(vm.SelectedThemeMode);
     }
   }
 
   private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
   {
-    if (sender is MainWindowViewModel vm && e.PropertyName == nameof(MainWindowViewModel.IsStartupEnabled))
+    if (sender is MainWindowViewModel vm)
     {
-      UpdateStartupMenuState(vm.IsStartupEnabled);
+      if (e.PropertyName == nameof(MainWindowViewModel.IsStartupEnabled))
+      {
+        UpdateStartupMenuState(vm.IsStartupEnabled);
+      }
+      else if (e.PropertyName == nameof(MainWindowViewModel.SelectedThemeMode))
+      {
+        UpdateThemeMenuState(vm.SelectedThemeMode);
+      }
     }
   }
 

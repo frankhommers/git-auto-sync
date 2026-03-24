@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using ReactiveUI;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using GitAutoSync.Core;
 using Serilog;
@@ -27,6 +29,7 @@ public class MainWindowViewModel : ViewModelBase
   private bool _isRunning = false;
   private RepositoryViewModel? _selectedRepository;
   private bool _isStartupEnabled = false;
+  private string _selectedThemeMode = "Follow system";
 
   private readonly IStartupManager _startupManager;
   private readonly DaemonClient _daemonClient;
@@ -35,8 +38,13 @@ public class MainWindowViewModel : ViewModelBase
   private bool _uiReady = false;
   private bool _shouldAutoStart = false;
 
+  private static readonly string SettingsFilePath = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+    ".config", "GitAutoSync", "settings.json");
+
   public ObservableCollection<RepositoryViewModel> Repositories { get; } = new();
   public ObservableCollection<LogEntryViewModel> LogEntries { get; } = new();
+  public ObservableCollection<string> ThemeModes { get; } = new() {"Follow system", "Dark", "Light"};
 
   private string _logText = "";
 
@@ -108,6 +116,17 @@ public class MainWindowViewModel : ViewModelBase
   {
     get => _selectedRepository;
     set => this.RaiseAndSetIfChanged(ref _selectedRepository, value);
+  }
+
+  public string SelectedThemeMode
+  {
+    get => _selectedThemeMode;
+    set
+    {
+      this.RaiseAndSetIfChanged(ref _selectedThemeMode, value);
+      ApplyTheme(value);
+      SaveAppSettings();
+    }
   }
 
   private bool _canStartAll = false;
@@ -294,6 +313,8 @@ public class MainWindowViewModel : ViewModelBase
 
     AddLogEntry("INFO", "Application", "Git Auto Sync started");
     AddLogEntry("INFO", "Daemon", "Waiting for daemon to start...");
+
+    LoadAppSettings();
   }
 
   public void OnDaemonReady(bool daemonReady)
@@ -1105,6 +1126,75 @@ public class MainWindowViewModel : ViewModelBase
         await Task.Delay(500);
         await AutoStartMonitoringAsync();
       });
+    }
+  }
+
+  private static void ApplyTheme(string themeMode)
+  {
+    if (Application.Current is null)
+    {
+      return;
+    }
+
+    Application.Current.RequestedThemeVariant = themeMode switch
+    {
+      "Dark" => ThemeVariant.Dark,
+      "Light" => ThemeVariant.Light,
+      _ => ThemeVariant.Default,
+    };
+  }
+
+  private void SaveAppSettings()
+  {
+    try
+    {
+      string? directory = Path.GetDirectoryName(SettingsFilePath);
+      if (!string.IsNullOrWhiteSpace(directory))
+      {
+        Directory.CreateDirectory(directory);
+      }
+
+      Dictionary<string, string> settings = new()
+      {
+        ["themeMode"] = SelectedThemeMode,
+      };
+
+      string json = JsonSerializer.Serialize(settings, AppJsonContext.Default.DictionaryStringString);
+      File.WriteAllText(SettingsFilePath, json);
+    }
+    catch (Exception ex)
+    {
+      AddLogEntry("WARNING", "Settings", $"Could not save settings: {ex.Message}");
+    }
+  }
+
+  public void LoadAppSettings()
+  {
+    try
+    {
+      if (!File.Exists(SettingsFilePath))
+      {
+        return;
+      }
+
+      string json = File.ReadAllText(SettingsFilePath);
+      Dictionary<string, string>? settings =
+        JsonSerializer.Deserialize(json, AppJsonContext.Default.DictionaryStringString);
+      if (settings is null)
+      {
+        return;
+      }
+
+      if (settings.TryGetValue("themeMode", out string? themeMode) && !string.IsNullOrEmpty(themeMode))
+      {
+        _selectedThemeMode = themeMode;
+        this.RaisePropertyChanged(nameof(SelectedThemeMode));
+        ApplyTheme(themeMode);
+      }
+    }
+    catch (Exception ex)
+    {
+      AddLogEntry("WARNING", "Settings", $"Could not load settings: {ex.Message}");
     }
   }
 

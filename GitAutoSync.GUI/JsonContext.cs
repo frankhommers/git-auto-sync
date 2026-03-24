@@ -10,5 +10,6 @@ namespace GitAutoSync.GUI;
 [JsonSerializable(typeof(LoadConfigRequest))]
 [JsonSerializable(typeof(SaveConfigRequest))]
 [JsonSerializable(typeof(DaemonEvent))]
+[JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 public partial class AppJsonContext : JsonSerializerContext;
