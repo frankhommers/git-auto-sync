@@ -147,6 +147,19 @@
                                     </Button>
                                     <TextBlock Text="|" FontSize="9" Opacity="0.3"
                                                VerticalAlignment="Center" />
+                                    <Button Click="SettingsButton_OnClick"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            MinHeight="0"
+                                            Padding="4,1"
+                                            Cursor="Hand">
+                                        <TextBlock Text="Settings"
+                                                   FontSize="9"
+                                                   Opacity="0.4"
+                                                   TextDecorations="Underline"/>
+                                    </Button>
+                                    <TextBlock Text="|" FontSize="9" Opacity="0.3"
+                                               VerticalAlignment="Center" />
                                     <Button Click="AboutButton_OnClick"
                                             Background="Transparent"
                                             BorderThickness="0"
@@ -210,6 +223,27 @@
                                     <Button Content="Remove"
                                             Command="{Binding RemoveRepoCommand}"
                                             CommandParameter="{Binding SelectedRepository}" />
+                                    <Border Width="1" Margin="2,4"
+                                            Background="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+                                    <Button Content="{Binding RevealButtonText}"
+                                            Command="{Binding RevealRepoCommand}"
+                                            CommandParameter="{Binding SelectedRepository}" />
+                                    <ItemsControl ItemsSource="{Binding OpenWithApps}"
+                                                  VerticalAlignment="Center">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" Spacing="8" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Content="{Binding Name}"
+                                                        ToolTip.Tip="{Binding Command}"
+                                                        Command="{Binding $parent[Window].DataContext.OpenWithCommand}"
+                                                        CommandParameter="{Binding}" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
                                 </StackPanel>
                             </StackPanel>
                         </Grid>

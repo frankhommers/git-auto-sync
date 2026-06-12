@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using GitAutoSync.GUI.Services;
 using GitAutoSync.GUI.Models;
+using System.Diagnostics;
 using System.Text.Json;
 using Avalonia.Input.Platform;
 
@@ -45,6 +46,12 @@ public class MainWindowViewModel : ViewModelBase
   public ObservableCollection<RepositoryViewModel> Repositories { get; } = new();
   public ObservableCollection<LogEntryViewModel> LogEntries { get; } = new();
   public ObservableCollection<string> ThemeModes { get; } = new() {"Follow system", "Dark", "Light"};
+  public ObservableCollection<OpenWithApp> OpenWithApps { get; } = new();
+
+  public string RevealButtonText =>
+    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "Reveal in Finder"
+    : RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Reveal in Explorer"
+    : "Reveal in Files";
 
   private string _logText = "";
 
@@ -223,6 +230,8 @@ public class MainWindowViewModel : ViewModelBase
   public ICommand StartRepoCommand { get; }
   public ICommand StopRepoCommand { get; }
   public ICommand RemoveRepoCommand { get; }
+  public ICommand RevealRepoCommand { get; }
+  public ICommand OpenWithCommand { get; }
   public ICommand ClearLogCommand { get; }
   public ICommand ToggleStartupCommand { get; }
   public ICommand ShowAboutCommand { get; }
@@ -281,6 +290,20 @@ public class MainWindowViewModel : ViewModelBase
       if (repo != null)
       {
         RemoveRepository(repo);
+      }
+    });
+    RevealRepoCommand = new ThreadSafeCommand<RepositoryViewModel>(async repo =>
+    {
+      if (repo != null)
+      {
+        await RevealRepository(repo);
+      }
+    });
+    OpenWithCommand = new ThreadSafeCommand<OpenWithApp>(app =>
+    {
+      if (app != null)
+      {
+        OpenRepositoryWith(app);
       }
     });
     ClearLogCommand = new ThreadSafeCommand(ClearLog);
@@ -795,6 +818,91 @@ public class MainWindowViewModel : ViewModelBase
     }
   }
 
+  private async Task RevealRepository(RepositoryViewModel repo)
+  {
+    try
+    {
+      if (!Directory.Exists(repo.Path))
+      {
+        AddLogEntry("ERROR", repo.Name, $"Folder not found: {repo.Path}");
+        return;
+      }
+
+      if (App.Current?.ApplicationLifetime
+            is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop
+          && desktop.MainWindow is { } window
+          && TopLevel.GetTopLevel(window)?.Launcher is { } launcher)
+      {
+        await launcher.LaunchUriAsync(new Uri($"file://{repo.Path}"));
+        AddLogEntry("INFO", repo.Name, $"Revealed in file manager: {repo.Path}");
+      }
+    }
+    catch (Exception ex)
+    {
+      AddLogEntry("ERROR", repo.Name, $"Failed to reveal folder: {ex.Message}");
+    }
+  }
+
+  private void OpenRepositoryWith(OpenWithApp app)
+  {
+    RepositoryViewModel? repo = SelectedRepository;
+    if (repo is null)
+    {
+      return;
+    }
+
+    if (!OpenWithCommandParser.TryParse(app.Command, repo.Path, out string fileName, out List<string> arguments))
+    {
+      AddLogEntry("ERROR", repo.Name, $"Invalid 'Open with' command for {app.Name}");
+      return;
+    }
+
+    try
+    {
+      ProcessStartInfo startInfo = new(fileName)
+      {
+        UseShellExecute = false,
+        // Run with the repository as working directory so cwd-based CLIs
+        // (e.g. Fork's "fork open") target the right repo.
+        WorkingDirectory = repo.Path,
+      };
+      foreach (string argument in arguments)
+      {
+        startInfo.ArgumentList.Add(argument);
+      }
+
+      Process.Start(startInfo);
+      AddLogEntry("INFO", repo.Name, $"Opened in {app.Name}");
+    }
+    catch (Exception ex)
+    {
+      AddLogEntry("ERROR", repo.Name, $"Failed to open in {app.Name}: {ex.Message}");
+    }
+  }
+
+  public void UpdateOpenWithApps(IEnumerable<OpenWithApp> apps)
+  {
+    void Apply()
+    {
+      OpenWithApps.Clear();
+      foreach (OpenWithApp app in apps.Take(AppSettingsStore.MaxOpenWithApps))
+      {
+        OpenWithApps.Add(app);
+      }
+
+      SaveAppSettings();
+    }
+
+    if (Dispatcher.UIThread.CheckAccess())
+    {
+      Apply();
+    }
+    else
+    {
+      Dispatcher.UIThread.Post(Apply);
+    }
+  }
+
   private async Task CopyLog()
   {
     try
@@ -1148,19 +1256,13 @@ public class MainWindowViewModel : ViewModelBase
   {
     try
     {
-      string? directory = Path.GetDirectoryName(SettingsFilePath);
-      if (!string.IsNullOrWhiteSpace(directory))
+      AppSettings settings = new()
       {
-        Directory.CreateDirectory(directory);
-      }
-
-      Dictionary<string, string> settings = new()
-      {
-        ["themeMode"] = SelectedThemeMode,
+        ThemeMode = SelectedThemeMode,
+        OpenWithApps = OpenWithApps.ToList(),
       };
 
-      string json = JsonSerializer.Serialize(settings, AppJsonContext.Default.DictionaryStringString);
-      File.WriteAllText(SettingsFilePath, json);
+      AppSettingsStore.Save(SettingsFilePath, settings);
     }
     catch (Exception ex)
     {
@@ -1172,24 +1274,19 @@ public class MainWindowViewModel : ViewModelBase
   {
     try
     {
-      if (!File.Exists(SettingsFilePath))
-      {
-        return;
-      }
+      AppSettings settings = AppSettingsStore.Load(SettingsFilePath);
 
-      string json = File.ReadAllText(SettingsFilePath);
-      Dictionary<string, string>? settings =
-        JsonSerializer.Deserialize(json, AppJsonContext.Default.DictionaryStringString);
-      if (settings is null)
+      if (!string.IsNullOrEmpty(settings.ThemeMode))
       {
-        return;
-      }
-
-      if (settings.TryGetValue("themeMode", out string? themeMode) && !string.IsNullOrEmpty(themeMode))
-      {
-        _selectedThemeMode = themeMode;
+        _selectedThemeMode = settings.ThemeMode;
         this.RaisePropertyChanged(nameof(SelectedThemeMode));
-        ApplyTheme(themeMode);
+        ApplyTheme(settings.ThemeMode);
+      }
+
+      OpenWithApps.Clear();
+      foreach (OpenWithApp app in settings.OpenWithApps)
+      {
+        OpenWithApps.Add(app);
       }
     }
     catch (Exception ex)

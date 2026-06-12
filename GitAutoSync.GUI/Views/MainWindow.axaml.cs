@@ -448,4 +448,21 @@ public partial class MainWindow : Window
     AboutWindow aboutWindow = new();
     await aboutWindow.ShowDialog(this);
   }
+
+  private async void SettingsButton_OnClick(object? sender, RoutedEventArgs e)
+  {
+    if (DataContext is not MainWindowViewModel viewModel)
+    {
+      return;
+    }
+
+    SettingsWindow settingsWindow = new(viewModel.OpenWithApps);
+    List<Models.OpenWithApp>? result =
+      await settingsWindow.ShowDialog<List<Models.OpenWithApp>?>(this);
+
+    if (result != null)
+    {
+      viewModel.UpdateOpenWithApps(result);
+    }
+  }
 }
