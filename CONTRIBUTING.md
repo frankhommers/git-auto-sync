@@ -5,7 +5,7 @@ Thanks for your interest in contributing to Git Auto Sync.
 ## Development Setup
 
 1. Install prerequisites:
-   - .NET 10 SDK
+   - .NET 11 SDK
    - Git
 2. Clone and build:
 

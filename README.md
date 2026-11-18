@@ -1,6 +1,6 @@
 # Git Auto Sync
 
-A cross-platform Git repository synchronization tool that automatically commits and pushes changes to keep your repositories in sync. Built with .NET 10 and featuring both a modern GUI and background daemon for seamless operation.
+A cross-platform Git repository synchronization tool that automatically commits and pushes changes to keep your repositories in sync. Built with .NET 11 and featuring both a modern GUI and background daemon for seamless operation.
 
 ## Features
 
@@ -52,7 +52,7 @@ brew install --cask frankhommers/tap/git-auto-sync
 
 ## Requirements
 
-- **.NET 10 SDK** or later
+- **.NET 11 SDK** or later
 - **Git** installed and available in PATH
 - Supported Operating Systems:
   - macOS 10.15 or later
@@ -342,7 +342,7 @@ git-auto-sync/
 
 ### Key Technologies
 
-- **.NET 10** - Runtime and framework
+- **.NET 11** - Runtime and framework
 - **ASP.NET Core** - Web API and WebSocket hosting
 - **Avalonia 11.2.2** - Cross-platform UI framework
 - **ReactiveUI** - MVVM framework

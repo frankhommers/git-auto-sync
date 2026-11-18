@@ -1,6 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Reactive.Linq;
 using ReactiveUI;
 using Avalonia;
 using Avalonia.Controls;

@@ -176,24 +176,24 @@ public partial class MainWindow : Window
           vm.ToggleStartupCommand.Execute(null);
         }
       }),
-      ToggleType = NativeMenuItemToggleType.CheckBox,
+      ToggleType = MenuItemToggleType.CheckBox,
     };
 
     // Theme submenu with radio-style toggles
     _themeFollowSystem = new NativeMenuItem("Follow system")
     {
-      ToggleType = NativeMenuItemToggleType.Radio,
+      ToggleType = MenuItemToggleType.Radio,
       IsChecked = true,
       Command = ReactiveCommand.Create(() => SetTheme("Follow system")),
     };
     _themeDark = new NativeMenuItem("Dark")
     {
-      ToggleType = NativeMenuItemToggleType.Radio,
+      ToggleType = MenuItemToggleType.Radio,
       Command = ReactiveCommand.Create(() => SetTheme("Dark")),
     };
     _themeLight = new NativeMenuItem("Light")
     {
-      ToggleType = NativeMenuItemToggleType.Radio,
+      ToggleType = MenuItemToggleType.Radio,
       Command = ReactiveCommand.Create(() => SetTheme("Light")),
     };
 
